@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Informe Beneficios — UTS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root { --uts-rojo: #8B1A1A; --uts-rojo-dark: #6B1212; --uts-verde: #6B7D45; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .navbar-uts { background: linear-gradient(90deg, var(--uts-verde), #4a5e28); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
+        .navbar-uts .brand { display: flex; align-items: center; gap: 10px; }
+        .navbar-uts .brand img { height: 36px; background: white; border-radius: 6px; padding: 3px; }
+        .navbar-uts .brand span { color: white; font-weight: 700; font-size: 0.95rem; }
+        .nav-right { display: flex; gap: 10px; align-items: center; }
+        .btn-back { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 6px 14px; font-size: 0.82rem; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
+        .btn-print { background: white; color: var(--uts-verde); border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .btn-print:hover { background: #f0f0f0; }
+        .page-header { background: linear-gradient(135deg, var(--uts-verde) 0%, #3d5420 100%); color: white; padding: 22px 0 70px; }
+        .page-header h5 { font-weight: 700; margin: 0; }
+        .page-header p { opacity: 0.75; font-size: 0.85rem; margin: 4px 0 0; }
+        .coord-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 16px; font-size: 0.82rem; margin-top: 10px; }
+        .cards-wrap { margin-top: -50px; }
+        .card { background: white; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border: none; }
+        .summary-row { display: flex; gap: 14px; flex-wrap: wrap; padding: 18px 20px; }
+        .sum-box { border-radius: 12px; padding: 16px 20px; flex: 1; min-width: 130px; text-align: center; }
+        .sum-box.gold  { background: linear-gradient(135deg, #f6d365, #fda085); color: white; }
+        .sum-box.green { background: linear-gradient(135deg, var(--uts-verde), #4a5e28); color: white; }
+        .sum-box.blue  { background: linear-gradient(135deg, #2E6DA4, #1a4a7a); color: white; }
+        .sum-box .num { font-size: 2rem; font-weight: 900; line-height: 1; }
+        .sum-box .lbl { font-size: 0.75rem; opacity: 0.9; margin-top: 4px; }
+        .table { margin: 0; }
+        .table thead th { background: var(--uts-verde); color: white; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 12px 14px; }
+        .table tbody td { padding: 11px 14px; font-size: 0.83rem; border-color: #f0f0f0; vertical-align: middle; }
+        .table tbody tr:hover { background: #f0faf4; }
+        .nivel-pill { border-radius: 20px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
+        .n-superior { background: #d4edda; color: #155724; }
+        .n-4 { background: #cce5ff; color: #004085; }
+        .n-3 { background: #fff3cd; color: #856404; }
+        .n-2 { background: #fde2b8; color: #7a4000; }
+        .beneficio-chip { display: inline-flex; align-items: center; gap: 5px; background: #e8f5e9; color: #1b5e20; border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; font-weight: 600; }
+        .beca-chip { display: inline-flex; align-items: center; gap: 5px; background: #e3f2fd; color: #0d47a1; border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; font-weight: 600; margin-left: 4px; }
+        @media print { .no-print { display: none !important; } .navbar-uts { display: none; } body { background: white; } .cards-wrap { margin-top: 0; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-uts no-print">
+    <div class="brand">
+        <img th:src="@{/img/Logo-UTS-1.png}" alt="UTS"/>
+        <span><i class="bi bi-trophy me-1"></i>Informe de Beneficios</span>
+    </div>
+    <div class="nav-right">
+        <button onclick="window.print()" class="btn-print">
+            <i class="bi bi-printer"></i>Imprimir
+        </button>
+        <a th:href="@{/director/dashboard}" class="btn-back">
+            <i class="bi bi-arrow-left"></i>Volver
+        </a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h5><i class="bi bi-trophy me-2"></i>Informe de Beneficios Académicos</h5>
+        <p th:text="${'Director: ' + (director?.nombreCompleto ?: 'N/A')}"></p>
+        <span class="coord-badge">
+            <i class="bi bi-building"></i>
+            <span th:text="${director?.nombreCoordinacion ?: ''}"></span>
+        </span>
+    </div>
+</div>
+
+<div class="container cards-wrap pb-5">
+
+    <div class="card mb-4">
+        <div class="summary-row">
+            <div class="sum-box gold">
+                <div class="num" th:text="${#lists.size(resultados)}"></div>
+                <div class="lbl">Con beneficio</div>
+            </div>
+            <div class="sum-box green">
+                <div class="num" th:text="${#lists.size(resultados.?[puntajeGlobal >= 153])}"></div>
+                <div class="lbl">Nota ≥ 4.5</div>
+            </div>
+            <div class="sum-box blue">
+                <div class="num" th:text="${#lists.size(resultados.?[puntajeGlobal >= 200])}"></div>
+                <div class="lbl">Beca 100%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th><th>ESTUDIANTE</th><th>PROGRAMA</th>
+                        <th>PUNTAJE</th><th>NIVEL</th><th>BENEFICIO</th><th>FECHA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r, i : ${resultados}">
+                        <td class="text-muted" th:text="${i.count}"></td>
+                        <td>
+                            <div class="fw-600 small" th:text="${r.estudiante.nombreCompleto}"></div>
+                            <small class="text-muted" th:text="${r.estudiante.numeroDocumento}"></small>
+                        </td>
+                        <td><small th:text="${r.estudiante.programa}"></small></td>
+                        <td>
+                            <span style="font-size:1.1rem;font-weight:800;color:#222;"
+                                  th:text="${r.puntajeGlobal}">
+                            </span>
+                        </td>
+                        <td>
+                            <span class="nivel-pill"
+                                  th:classappend="${r.nivelGlobal == 'Superior'} ? 'n-superior' :
+                                                  (${r.nivelGlobal == 'Nivel 4'} ? 'n-4' :
+                                                  (${r.nivelGlobal == 'Nivel 3'} ? 'n-3' : 'n-2'))"
+                                  th:text="${r.nivelGlobal}">
+                            </span>
+                        </td>
+                        <td>
+                            <span class="beneficio-chip">
+                                <i class="bi bi-file-earmark-check"></i>
+                                <span th:text="${T(com.saberpro.app.util.BeneficioUtil).getNotaTrabajoGrado(r.puntajeGlobal) + '/5.0'}"></span>
+                            </span>
+                            <span th:if="${r.puntajeGlobal >= 200}" class="beca-chip">
+                                <i class="bi bi-mortarboard"></i>Beca 100%
+                            </span>
+                        </td>
+                        <td><small th:text="${r.fechaExamen}"></small></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(resultados)}">
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No hay estudiantes con beneficios.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

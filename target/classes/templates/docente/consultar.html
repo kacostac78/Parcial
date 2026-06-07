@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Consultar Resultados — UTS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root { --uts-rojo: #8B1A1A; --uts-rojo-dark: #6B1212; --uts-verde: #6B7D45; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .navbar-uts {
+            background: linear-gradient(90deg, var(--uts-rojo-dark), var(--uts-rojo));
+            padding: 0 24px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .navbar-uts .brand { display: flex; align-items: center; gap: 10px; }
+        .navbar-uts .brand img { height: 36px; background: white; border-radius: 6px; padding: 3px; }
+        .navbar-uts .brand span { color: white; font-weight: 700; font-size: 0.95rem; }
+        .btn-back {
+            background: rgba(255,255,255,0.15); color: white;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
+            padding: 6px 14px; font-size: 0.82rem; text-decoration: none;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--uts-rojo-dark), var(--uts-rojo));
+            color: white; padding: 22px 0 70px;
+        }
+        .page-header h5 { font-weight: 700; margin: 0; }
+        .page-header p { opacity: 0.75; font-size: 0.85rem; margin: 4px 0 0; }
+
+        .cards-wrap { margin-top: -50px; }
+
+        /* SEARCH */
+        .search-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 20px 24px; margin-bottom: 20px;
+        }
+        .search-wrap {
+            display: flex; gap: 10px; align-items: center;
+        }
+        .search-wrap input {
+            flex: 1; border: 2px solid #e8e8e8; border-radius: 10px;
+            padding: 12px 16px; font-size: 0.92rem;
+            transition: border-color .2s, box-shadow .2s; outline: none;
+        }
+        .search-wrap input:focus {
+            border-color: var(--uts-rojo);
+            box-shadow: 0 0 0 3px rgba(139,26,26,0.1);
+        }
+        .btn-buscar {
+            background: var(--uts-rojo); color: white; border: none;
+            border-radius: 10px; padding: 12px 24px; font-weight: 700;
+            font-size: 0.9rem; white-space: nowrap;
+            display: flex; align-items: center; gap: 8px; transition: background .2s;
+        }
+        .btn-buscar:hover { background: var(--uts-rojo-dark); color: white; }
+
+        /* RESULTADO CARD */
+        .result-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            margin-bottom: 16px; overflow: hidden;
+        }
+        .result-header {
+            padding: 16px 20px; background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+        }
+        .student-info { display: flex; align-items: center; gap: 12px; }
+        .student-avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(139,26,26,0.1); color: var(--uts-rojo);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+        .student-name { font-weight: 700; font-size: 0.95rem; color: #222; }
+        .student-meta { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+        .score-badge {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .score-num { font-size: 1.8rem; font-weight: 900; color: var(--uts-verde); line-height: 1; }
+        .nivel-pill {
+            border-radius: 20px; padding: 4px 12px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .n-superior { background: #d4edda; color: #155724; }
+        .n-4        { background: #cce5ff; color: #004085; }
+        .n-3        { background: #fff3cd; color: #856404; }
+        .n-2        { background: #fde2b8; color: #7a4000; }
+        .n-1        { background: #f8d7da; color: #721c24; }
+        .n-anulado  { background: #e2e3e5; color: #383d41; }
+
+        .comp-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px; padding: 16px 20px;
+        }
+        .comp-item {
+            background: #f8f9fa; border-radius: 10px; padding: 12px 14px;
+        }
+        .comp-item .ci-label {
+            font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #aaa; margin-bottom: 6px;
+        }
+        .comp-item .ci-val { font-size: 1.2rem; font-weight: 800; color: #333; line-height: 1; }
+        .comp-item .ci-nv {
+            display: inline-block; border-radius: 20px; padding: 2px 8px;
+            font-size: 0.67rem; font-weight: 700; margin-top: 4px;
+        }
+
+        /* EMPTY STATES */
+        .empty-state {
+            background: white; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            padding: 50px 20px; text-align: center;
+        }
+        .empty-state i { font-size: 3rem; color: #ddd; margin-bottom: 14px; display: block; }
+        .empty-state h6 { color: #888; font-weight: 600; margin-bottom: 6px; }
+        .empty-state p { color: #aaa; font-size: 0.85rem; margin: 0; }
+
+        .anulado-tag {
+            background: #e2e3e5; color: #383d41; border-radius: 8px;
+            padding: 8px 14px; font-size: 0.85rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; margin: 16px 20px;
+        }
+
+        .results-count {
+            font-size: 0.78rem; color: #888; padding: 0 4px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-uts">
+    <div class="brand">
+        <img th:src="@{/img/Logo-UTS-1.png}" alt="UTS"/>
+        <span><i class="bi bi-search me-1"></i>Consultar Resultados Saber Pro</span>
+    </div>
+    <a th:href="@{/docente/dashboard}" class="btn-back">
+        <i class="bi bi-arrow-left"></i>Volver
+    </a>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h5><i class="bi bi-search me-2"></i>Consultar Resultados</h5>
+        <p>Busca por cédula o nombre del estudiante para ver sus resultados Saber Pro</p>
+    </div>
+</div>
+
+<div class="container cards-wrap pb-5">
+
+    <!-- BUSCADOR -->
+    <div class="search-card">
+        <form th:action="@{/docente/consultar}" method="get">
+            <div class="search-wrap">
+                <input type="text" name="query"
+                       th:value="${query}"
+                       placeholder="Ingresa cédula o nombre del estudiante..."
+                       autofocus/>
+                <button type="submit" class="btn-buscar">
+                    <i class="bi bi-search"></i>Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div th:if="${resultados != null}">
+
+        <!-- HAY RESULTADOS -->
+        <div th:if="${!#lists.isEmpty(resultados)}">
+            <p class="results-count mb-3">
+                <i class="bi bi-check-circle text-success me-1"></i>
+                <span th:text="${#lists.size(resultados)}"></span> resultado(s) encontrado(s) para
+                "<strong th:text="${query}"></strong>"
+            </p>
+
+            <div th:each="r : ${resultados}" class="result-card">
+
+                <!-- HEADER -->
+                <div class="result-header">
+                    <div class="student-info">
+                        <div class="student-avatar"><i class="bi bi-person-fill"></i></div>
+                        <div>
+                            <div class="student-name" th:text="${r.estudiante.nombreCompleto}"></div>
+                            <div class="student-meta">
+                                <span th:text="${r.estudiante.tipoDocumento + ' ' + r.estudiante.numeroDocumento}"></span>
+                                &nbsp;·&nbsp;
+                                <span th:text="${r.estudiante.programa}"></span>
+                                &nbsp;·&nbsp;
+                                Sem. <span th:text="${r.estudiante.semestre}"></span>
+                                &nbsp;·&nbsp;
+                                <i class="bi bi-calendar me-1"></i>
+                                <span th:text="${r.fechaExamen}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${r.puntajeGlobal != null}" class="score-badge">
+                        <div>
+                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:#aaa;letter-spacing:0.5px;">Puntaje global</div>
+                            <div class="score-num" th:text="${r.puntajeGlobal}"></div>
+                        </div>
+                        <span class="nivel-pill"
+                              th:classappend="${r.nivelGlobal == 'Superior'} ? 'n-superior' :
+                                              (${r.nivelGlobal == 'Nivel 4'} ? 'n-4' :
+                                              (${r.nivelGlobal == 'Nivel 3'} ? 'n-3' :
+                                              (${r.nivelGlobal == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.nivelGlobal}">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ANULADO -->
+                <div th:if="${r.puntajeGlobal == null}">
+                    <div class="anulado-tag">
+                        <i class="bi bi-x-circle"></i>Puntaje ANULADO
+                    </div>
+                </div>
+
+                <!-- COMPETENCIAS -->
+                <div th:unless="${r.puntajeGlobal == null}" class="comp-grid">
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-pencil me-1"></i>Com. Escrita</div>
+                        <div class="ci-val" th:text="${r.comunicacionEscrita}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.comunicacionEscritaNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.comunicacionEscritaNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.comunicacionEscritaNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.comunicacionEscritaNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.comunicacionEscritaNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-calculator me-1"></i>Raz. Cuantitativo</div>
+                        <div class="ci-val" th:text="${r.razonamientoCuantitativo}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.razonamientoCuantitativoNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.razonamientoCuantitativoNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.razonamientoCuantitativoNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.razonamientoCuantitativoNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.razonamientoCuantitativoNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-book me-1"></i>Lectura Crítica</div>
+                        <div class="ci-val" th:text="${r.lecturaCritica}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.lecturaCriticaNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.lecturaCriticaNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.lecturaCriticaNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.lecturaCriticaNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.lecturaCriticaNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-people me-1"></i>Comp. Ciudadanas</div>
+                        <div class="ci-val" th:text="${r.competenciasCiudadanas}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.competenciasCiudadanasNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.competenciasCiudadanasNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.competenciasCiudadanasNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.competenciasCiudadanasNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.competenciasCiudadanasNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-translate me-1"></i>Inglés</div>
+                        <div class="ci-val" th:text="${r.ingles}"></div>
+                        <span class="ci-nv n-3" th:text="${r.inglesNivel}"></span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-lightbulb me-1"></i>Form. Proyectos</div>
+                        <div class="ci-val" th:text="${r.formulacionProyectos}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.formulacionProyectosNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.formulacionProyectosNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.formulacionProyectosNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.formulacionProyectosNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.formulacionProyectosNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-graph-up me-1"></i>Pens. Científico</div>
+                        <div class="ci-val" th:text="${r.pensamientoCientifico}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.pensamientoCientificoNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.pensamientoCientificoNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.pensamientoCientificoNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.pensamientoCientificoNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.pensamientoCientificoNivel}">
+                        </span>
+                    </div>
+
+                    <div class="comp-item">
+                        <div class="ci-label"><i class="bi bi-code-slash me-1"></i>Diseño Software</div>
+                        <div class="ci-val" th:text="${r.disenoSoftware}"></div>
+                        <span class="ci-nv"
+                              th:classappend="${r.disenoSoftwareNivel == 'Superior'} ? 'n-superior' :
+                                              (${r.disenoSoftwareNivel == 'Nivel 4'} ? 'n-4' :
+                                              (${r.disenoSoftwareNivel == 'Nivel 3'} ? 'n-3' :
+                                              (${r.disenoSoftwareNivel == 'Nivel 2'} ? 'n-2' : 'n-1')))"
+                              th:text="${r.disenoSoftwareNivel}">
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SIN RESULTADOS -->
+        <div th:if="${#lists.isEmpty(resultados)}" class="empty-state">
+            <i class="bi bi-search"></i>
+            <h6>Sin resultados</h6>
+            <p>No se encontraron resultados para "<strong th:text="${query}"></strong>".<br>
+               Verifica la cédula o el nombre e intenta de nuevo.</p>
+        </div>
+
+    </div>
+
+    <!-- ESTADO INICIAL -->
+    <div th:unless="${resultados != null}" class="empty-state">
+        <i class="bi bi-search"></i>
+        <h6>Busca un estudiante</h6>
+        <p>Ingresa la cédula o nombre del estudiante en el campo de búsqueda.</p>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
