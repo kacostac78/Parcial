@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Requisitos Saber Pro — UTS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root { --uts-rojo: #8B1A1A; --uts-verde: #6B7D45; --uts-crema: #FAF0DC; }
+        body { background: var(--uts-crema); }
+        .navbar { background-color: var(--uts-rojo) !important; }
+        .hero { background: var(--uts-rojo); color: white; padding: 28px; text-align: center; }
+        .hero img { width: 55px; background: white; border-radius: 50%; padding: 5px; margin-bottom: 8px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .req-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-bottom: 1px solid #eee; }
+        .req-item:last-child { border-bottom: none; }
+        .req-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .req-icon.ok  { background: #d4edda; color: #155724; }
+        .req-icon.warn { background: #fff3cd; color: #856404; }
+        .req-title { font-weight: 600; font-size: 0.9rem; color: #333; }
+        .req-desc  { font-size: 0.82rem; color: #666; margin-top: 2px; }
+        .section-title { color: var(--uts-rojo); font-weight: 700; border-bottom: 2px solid var(--uts-rojo); padding-bottom: 6px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="hero">
+    <img th:src="@{/img/Logo-UTS-1.png}" alt="UTS"/>
+    <h5 class="fw-bold mb-0"><i class="bi bi-clipboard-check me-2"></i>Requisitos para Presentar Saber Pro</h5>
+    <p class="mb-0 small">Unidades Tecnológicas de Santander</p>
+</div>
+
+<div class="container mt-4">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6 class="section-title"><i class="bi bi-list-check me-2"></i>Requisitos Académicos</h6>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Créditos aprobados</div>
+                        <div class="req-desc">Haber aprobado el 75% o más de los créditos del programa académico.</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Estar matriculado</div>
+                        <div class="req-desc">Tener matrícula vigente en el período de aplicación del examen.</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Semestre mínimo</div>
+                        <div class="req-desc">Estar cursando mínimo el 75% del programa (semestre 8 en adelante para programas de 10 semestres).</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon warn"><i class="bi bi-exclamation"></i></div>
+                    <div>
+                        <div class="req-title">Sin sanciones disciplinarias</div>
+                        <div class="req-desc">No tener sanciones disciplinarias vigentes al momento de la inscripción.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h6 class="section-title"><i class="bi bi-cash-coin me-2"></i>Requisitos de Pago</h6>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Pago del examen</div>
+                        <div class="req-desc">Realizar el pago del derecho a examen en los plazos establecidos por el ICFES.</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Subir comprobante</div>
+                        <div class="req-desc">Cargar el comprobante de pago en el sistema para validación por parte de coordinación.</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon ok"><i class="bi bi-check-lg"></i></div>
+                    <div>
+                        <div class="req-title">Aprobación del coordinador</div>
+                        <div class="req-desc">El coordinador debe aprobar el comprobante de pago subido.</div>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon warn"><i class="bi bi-exclamation"></i></div>
+                    <div>
+                        <div class="req-title">Paz y salvo financiero</div>
+                        <div class="req-desc">No tener deudas pendientes con la institución al momento de la inscripción.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card p-4">
+                <h6 class="section-title"><i class="bi bi-people me-2"></i>Estado de Estudiantes</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead style="background:var(--uts-rojo);color:white;">
+                            <tr>
+                                <th>DOCUMENTO</th>
+                                <th>NOMBRE</th>
+                                <th>PROGRAMA</th>
+                                <th>SEMESTRE</th>
+                                <th>ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="e : ${estudiantes}">
+                                <td th:text="${e.numeroDocumento}"></td>
+                                <td th:text="${e.nombreCompleto}"></td>
+                                <td th:text="${e.programa}"></td>
+                                <td th:text="${e.semestre}"></td>
+                                <td>
+                                    <span th:if="${e.activo}" style="background:#d4edda;color:#155724;border-radius:20px;padding:2px 10px;font-size:0.75rem;">Activo</span>
+                                    <span th:unless="${e.activo}" style="background:#f8d7da;color:#721c24;border-radius:20px;padding:2px 10px;font-size:0.75rem;">Inactivo</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-3 mb-4">
+        <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary me-2">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+        <button onclick="window.print()" class="btn" style="background:var(--uts-verde);color:white;">
+            <i class="bi bi-printer me-1"></i>Imprimir
+        </button>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

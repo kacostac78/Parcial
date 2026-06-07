@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Estudiantes de mi Carrera — UTS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        :root { --uts-rojo: #8B1A1A; --uts-rojo-dark: #6B1212; --uts-verde: #6B7D45; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .navbar-uts {
+            background: linear-gradient(90deg, var(--uts-rojo-dark), var(--uts-rojo));
+            padding: 0 24px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .navbar-uts .brand { display: flex; align-items: center; gap: 10px; }
+        .navbar-uts .brand img { height: 36px; background: white; border-radius: 6px; padding: 3px; }
+        .navbar-uts .brand span { color: white; font-weight: 700; font-size: 0.95rem; }
+        .nav-right { display: flex; gap: 10px; align-items: center; }
+        .btn-back {
+            background: rgba(255,255,255,0.15); color: white;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
+            padding: 6px 14px; font-size: 0.82rem; text-decoration: none;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.25); color: white; }
+        .btn-print {
+            background: white; color: var(--uts-rojo);
+            border: none; border-radius: 6px;
+            padding: 6px 14px; font-size: 0.82rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; cursor: pointer;
+        }
+        .btn-print:hover { background: #f0f0f0; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--uts-rojo-dark), var(--uts-rojo));
+            color: white; padding: 22px 0 70px;
+        }
+        .page-header h5 { font-weight: 700; margin: 0; }
+        .page-header p { opacity: 0.75; font-size: 0.85rem; margin: 4px 0 0; }
+        .coord-badge-header {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px; padding: 5px 16px; font-size: 0.82rem; margin-top: 10px;
+        }
+
+        .cards-wrap { margin-top: -50px; }
+        .card { background: white; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border: none; }
+
+        /* STATS */
+        .stats-row { display: flex; gap: 14px; flex-wrap: wrap; padding: 18px 20px; }
+        .stat-box { background: #f8f9fa; border-radius: 10px; padding: 14px 20px; text-align: center; min-width: 100px; }
+        .stat-box .num { font-size: 1.6rem; font-weight: 800; color: var(--uts-rojo); line-height: 1; }
+        .stat-box .lbl { font-size: 0.68rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box.verde .num { color: var(--uts-verde); }
+
+        /* BUSCADOR */
+        .search-bar {
+            background: #f8f9fa; border-radius: 10px; padding: 12px 16px;
+            margin-bottom: 16px; display: flex; gap: 10px; align-items: center;
+        }
+        .search-bar input {
+            border: 1.5px solid #e8e8e8; border-radius: 8px;
+            padding: 8px 12px; font-size: 0.85rem; flex: 1;
+        }
+        .search-bar input:focus { outline: none; border-color: var(--uts-rojo); }
+
+        /* TABLA */
+        .table { margin: 0; }
+        .table thead th {
+            background: var(--uts-rojo); color: white;
+            font-size: 0.72rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border: none; padding: 12px 14px;
+        }
+        .table tbody td { padding: 12px 14px; font-size: 0.83rem; border-color: #f0f0f0; vertical-align: middle; }
+        .table tbody tr:hover { background: #fdf5f5; }
+
+        .badge-activo   { background: #d4edda; color: #155724; border-radius: 20px; padding: 3px 10px; font-size: 0.72rem; font-weight: 600; }
+        .badge-inactivo { background: #f8d7da; color: #721c24; border-radius: 20px; padding: 3px 10px; font-size: 0.72rem; font-weight: 600; }
+
+        .prog-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(139,26,26,0.07); color: var(--uts-rojo);
+            border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 600;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .navbar-uts { display: none; }
+            body { background: white; }
+            .cards-wrap { margin-top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-uts no-print">
+    <div class="brand">
+        <img th:src="@{/img/Logo-UTS-1.png}" alt="UTS"/>
+        <span><i class="bi bi-people me-1"></i>Estudiantes de mi Carrera</span>
+    </div>
+    <div class="nav-right">
+        <button onclick="window.print()" class="btn-print no-print">
+            <i class="bi bi-printer"></i>Imprimir
+        </button>
+        <a th:href="@{/director/dashboard}" class="btn-back">
+            <i class="bi bi-arrow-left"></i>Volver
+        </a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h5><i class="bi bi-people me-2"></i>Estudiantes de mi Coordinación</h5>
+        <p th:text="${'Director: ' + (director?.nombreCompleto ?: '')}"></p>
+        <span class="coord-badge-header">
+            <i class="bi bi-building"></i>
+            <span th:text="${director?.nombreCoordinacion ?: ''}"></span>
+        </span>
+    </div>
+</div>
+
+<div class="container cards-wrap pb-5">
+
+    <!-- STATS -->
+    <div class="card mb-4">
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="num" th:text="${#lists.size(estudiantes)}"></div>
+                <div class="lbl">Total</div>
+            </div>
+            <div class="stat-box verde">
+                <div class="num" th:text="${#lists.size(estudiantes.?[activo == true])}"></div>
+                <div class="lbl">Activos</div>
+            </div>
+            <div class="stat-box">
+                <div class="num" th:text="${#lists.size(estudiantes.?[activo == false])}"></div>
+                <div class="lbl">Inactivos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="card p-4 no-print" style="margin-bottom:16px;">
+        <div class="search-bar">
+            <i class="bi bi-search text-muted"></i>
+            <input type="text" id="buscador"
+                   placeholder="Filtrar por nombre, documento o programa..."
+                   onkeyup="filtrar()"/>
+        </div>
+    </div>
+
+    <div class="card" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table" id="tablaEstudiantes">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>DOCUMENTO</th>
+                        <th>NOMBRE COMPLETO</th>
+                        <th>PROGRAMA</th>
+                        <th>SEMESTRE</th>
+                        <th>Nº REGISTRO</th>
+                        <th>CORREO</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e, i : ${estudiantes}">
+                        <td class="text-muted" th:text="${i.count}"></td>
+                        <td>
+                            <small class="text-muted" th:text="${e.tipoDocumento}"></small>
+                            <div class="fw-600 small" th:text="${e.numeroDocumento}"></div>
+                        </td>
+                        <td>
+                            <div class="fw-600" th:text="${e.nombreCompleto}"></div>
+                            <small class="text-muted" th:text="${e.correo}"></small>
+                        </td>
+                        <td>
+                            <span class="prog-chip" th:text="${e.programa}"></span>
+                            <div><small class="text-muted" th:text="${e.tipoPrograma}"></small></div>
+                        </td>
+                        <td th:text="${e.semestre + 'º'}"></td>
+                        <td th:text="${e.numeroRegistro ?: '—'}"></td>
+                        <td><small th:text="${e.correo}"></small></td>
+                        <td>
+                            <span th:if="${e.activo}" class="badge-activo">Activo</span>
+                            <span th:unless="${e.activo}" class="badge-inactivo">Inactivo</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(estudiantes)}">
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No hay estudiantes en esta coordinación.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function filtrar() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    document.querySelectorAll('#tablaEstudiantes tbody tr').forEach(f => {
+        f.style.display = f.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
